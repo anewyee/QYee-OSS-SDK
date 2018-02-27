@@ -5,6 +5,7 @@
 #include "oss_auth.h"
 #include "oss_util.h"
 #include "oss_api.h"
+
 #include "src/oss_config.h"
 #include "src/oss_sample_util.h"
 
@@ -120,7 +121,7 @@ void put_object_from_file()
     aos_str_set(&object, OBJECT_NAME);
     aos_str_set(&file, filename);
 
-    s = oss_put_object_from_file(options, &bucket, &object, &file, 
+    s = oss_put_object_from_file(options, &bucket, &object, &file,
                                  headers, &resp_headers);
 
     if (aos_status_is_ok(s)) {

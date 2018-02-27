@@ -23,8 +23,8 @@ INCLUDEPATH += oss-c-sdk/include \
 
 SOURCES += main.cpp\
         mainwindow.cpp \
-    src/oss_put_object_sample.c \
     src/oss_config.c \
+    src/oss_put_object_sample.c \
     src/oss_sample_util.c
 
 HEADERS  += mainwindow.h \

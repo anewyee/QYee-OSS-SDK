@@ -16,6 +16,8 @@
 
 1、将下载的文件解压并用vs2010打开，编译生成oss_c_sdk.lib文件（帮助文档有详细方法） 
 
+[aliyun-oss-c-sdk-sample.zip](http://docs-aliyun.cn-hangzhou.oss.aliyun-inc.com/assets/attach/32132/cn_zh/1487730523734/aliyun-oss-c-sdk-sample.zip?spm=a2c4g.11186623.2.16.urDWjs&file=aliyun-oss-c-sdk-sample.zip)
+
 2、将oss_c_sdk目录下的头文件（.h）放在自己工程的源代码目录下，并在工程中添加这些源文件 
 
 3、在pro文件中添加库文件
@@ -40,7 +42,10 @@ INCLUDEPATH += third_party/include \
 ```
 这些文件是oss_c_sdk目录下的头文件需要引用的
 
-5、将third_party\lib\Release下的dll放在项目的bin目录下，即exe所在目录，否则不能运行
+**重要一条：**
+5、将third_party\lib\Release下的**dll放在项目的bin目录下**，即exe所在目录，否则不能运行
+
+出现：Qt 程序debug时提示：The CDB process terminated
 
 6、参照所下载示例中的代码，即可完成文件上传，示例代码如下：
 
@@ -59,7 +64,6 @@ int main(int argc, char *argv[])
     multipart_object_sample();
     delete_object_sample();
     aos_http_io_deinitialize();
-
     system("pause");
 
     return 0;
@@ -76,11 +80,12 @@ int main(int argc, char *argv[])
 3、对于QString转换为char*的解决代码如下：
 
 ```
-1     QString sMyfilename = "c:\test.c";
-2     QByteArray byteArray_filename = sMyfilename.toLatin1();
-3     char* pchar_filename = new char[byteArray_filename.size() + 1];
-4     strcpy(pchar_filename, byteArray_filename.data());
+QString sMyfilename = "c:\test.c";
+QByteArray byteArray_filename = sMyfilename.toLatin1();
+char* pchar_filename = new char[byteArray_filename.size() + 1];
+strcpy(pchar_filename, byteArray_filename.data());
 ```
+
 4、第三方库要用release目录下的dll，否则会有问题，debug目录下的反正没用过。
 
  
@@ -93,15 +98,18 @@ int main(int argc, char *argv[])
 
 - 参考文献：[Visual Studio示例工程](https://help.aliyun.com/document_detail/32132.html?spm=a2c4g.11186623.6.794.YiaJQl)
 
-示例工程 : [aliyun-oss-c-sdk-sample.zip](http://docs-aliyun.cn-hangzhou.oss.aliyun-inc.com/assets/attach/32132/cn_zh/1487730523734/aliyun-oss-c-sdk-sample.zip?spm=a2c4g.11186623.2.16.urDWjs&file=aliyun-oss-c-sdk-sample.zip)
-GitHub地址：[GitHub](https://github.com/baiyubin/aliyun-oss-c-sdk-sample?spm=a2c4g.11186623.2.17.urDWjs)
+- 示例工程 : [aliyun-oss-c-sdk-sample.zip](http://docs-aliyun.cn-hangzhou.oss.aliyun-inc.com/assets/attach/32132/cn_zh/1487730523734/aliyun-oss-c-sdk-sample.zip?spm=a2c4g.11186623.2.16.urDWjs&file=aliyun-oss-c-sdk-sample.zip)
+
+- GitHub地址：[GitHub](https://github.com/baiyubin/aliyun-oss-c-sdk-sample?spm=a2c4g.11186623.2.17.urDWjs)
 
 ## 揭秘Sample工程
 
 OSS C SDK Sample工程是怎么做出来的呢？VS2008、VS2010、VS2012、VS2013、VS2015的做法基本相同，下面以VS2012为例说明。
 
 准备库和头文件。准备SDK库/头文件，第三方库/头文件。合并SDK库/头文件、第三方库/头文件，结果为oss-c-sdk-sampleoss-c-sdk目录。oss-c-sdk目录直接放在工程目录下。
+
 配置头文件路径。在路径 Solution Explorer -> oss-c-sdk-sample -> Property -> Configuration Properties -> VC++ Directories -> Include Directories，添加如下配置：
+
 ```
 ..\oss-c-sdk\include
 ..\oss-c-sdk\include\apr
@@ -110,11 +118,15 @@ OSS C SDK Sample工程是怎么做出来的呢？VS2008、VS2010、VS2012、VS20
 ..\oss-c-sdk\include\mxml
 ..\oss-c-sdk\include\sdk
 ```
+
 配置库路径。在路径 oss-c-sdk-sample -> Property -> Configuration Properties -> Linker -> General -> Additional Library Directories，添加 
+
 ```
 ..\oss-c-sdk\lib\Release
 ```
+
 配置库。在路径 oss-c-sdk-sample -> Property -> Configuration Properties -> Linker -> Input -> Additional Dependencies，添加如下配置：
+
 ```
 libapr-1.lib
 libaprutil-1.lib
@@ -123,4 +135,5 @@ mxml1.lib
 oss_c_sdk.lib
 ws2_32.lib
 ```
+
 如果您想从一个空工程开始编写自己的程序，或者在已有的工程中使用OSS C SDK，请参考Sample工程的配置方法。

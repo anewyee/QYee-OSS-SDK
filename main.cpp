@@ -10,6 +10,9 @@
 #include "oss_util.h"
 #include "oss_api.h"
 
+//例子
+
+#include "src/oss_sample_util.h"
 /*
 const char OSS_ENDPOINT[] = "<your endpoint>";
 const char ACCESS_KEY_ID[] = "<your access key id>";
@@ -22,14 +25,62 @@ const char OSS_ENDPOINT[] = "oss-cn-shenzhen.aliyuncs.com";
 const char ACCESS_KEY_ID[] = "LTAIFmi3ZKuGxRhw";
 const char ACCESS_KEY_SECRET[] = "h40ul1ExbpS2rkWnfsxgY0Kbvot1L4";
 const char BUCKET_NAME[] = "nofly";
-const char OBJECT_NAME[] = "CNAME";
+const char OBJECT_NAME[] = "indexa.html";
 
 void init_sample_request_options(oss_request_options_t *options, int is_cname);
 
 void put_object_from_buffer();
+void put_object_from_file();
 void get_object_to_buffer();
 void get_object_to_file();
 void delete_object();
+
+void yee_upload_project()
+{
+    int is_cname = 0;
+    aos_pool_t *p;
+    oss_request_options_t *options;
+    aos_status_t *s;
+    aos_table_t *headers;
+    aos_table_t *resp_headers;
+//        char *bucket_name = "<您的bucket名字>";
+//        char *object_name = "<您的object名字>";
+    aos_string_t bucket;
+    aos_string_t object;
+
+//        char *data = "object content";
+    QString sMyfilename = "object content";
+    QByteArray byteArray_filename = sMyfilename.toLatin1();
+    char* data = new char[byteArray_filename.size() + 1];
+    strcpy(data, byteArray_filename.data());
+
+    aos_list_t buffer;
+    aos_buf_t *content;
+    aos_pool_create(&p, NULL);
+    /* 创建并初始化options */
+    options = oss_request_options_create(p);
+    init_sample_request_options(options, is_cname);
+
+//        init_options(options);
+    /* 初始化参数 */
+    aos_str_set(&object, OBJECT_NAME);
+    aos_str_set(&bucket, BUCKET_NAME);
+    headers = aos_table_make(p, 0);
+    /* 将char*类型的数据转换为oss_put_object_from_buffer接口需要的aos_list_t类型的 */
+    aos_list_init(&buffer);
+    content = aos_buf_pack(options->pool, data, strlen(data));
+    aos_list_add_tail(&content->node, &buffer);
+    /* 上传文件 */
+    s = oss_put_object_from_buffer(options, &bucket, &object, &buffer, headers, &resp_headers);
+    /* 判断请求是否成功 */
+    if (aos_status_is_ok(s)) {
+        qDebug()<< "put file succeeded\n";
+    } else {
+        qDebug()<< "put file failed\n";
+    }
+    /* 释放资源 */
+    aos_pool_destroy(p);
+}
 
 int main(int argc, char *argv[])
 {
@@ -62,11 +113,12 @@ int main(int argc, char *argv[])
     aos_info_log("start");
 
     // run samples
-    put_object_from_buffer();
-//    put_object_from_file();//delete this function
-    get_object_to_buffer();
-    get_object_to_file();
-    delete_object();
+//    put_object_from_buffer();
+//    put_object_from_file();
+//    get_object_to_buffer();
+//    get_object_to_file();
+//    delete_object();
+    yee_upload_project();
 
     // close log file
     apr_file_close(output);
@@ -131,12 +183,61 @@ void put_object_from_buffer()
 
     if (aos_status_is_ok(s)) {
         qDebug()<<"put object from buffer succeeded\n";
-        printf("put object from buffer succeeded\n");
+//        printf("put object from buffer succeeded\n");
     } else {
         qDebug()<<"put object from buffer failed\n";
-        printf("put object from buffer failed\n");
+//        printf("put object from buffer failed\n");
     }
 
+    aos_pool_destroy(p);
+}
+
+
+void put_object_from_file()
+{
+    aos_pool_t *p = NULL;
+    aos_string_t bucket;
+    aos_string_t object;
+    aos_table_t *headers = NULL;
+    aos_table_t *resp_headers = NULL;
+    oss_request_options_t *options = NULL;
+
+//    char *filename = __FILE__;
+    QString sMyfilename = "__FILE__";
+    QByteArray byteArray_filename = sMyfilename.toLatin1();
+    char* filename = new char[byteArray_filename.size() + 1];
+    strcpy(filename, byteArray_filename.data());
+
+    aos_status_t *s = NULL;
+    aos_string_t file;
+    aos_pool_create(&p, NULL);
+    /* 创建并初始化options */
+    options = oss_request_options_create(p);
+    init_sample_request_options(options, 0);
+//    init_options(options);
+    /* 初始化参数 */
+    headers = aos_table_make(options->pool, 1);
+//    apr_table_set(headers, OSS_CONTENT_TYPE, "image/jpeg");
+
+    apr_table_set(headers, "x-oss-meta-author", "oss");
+
+    aos_str_set(&bucket, BUCKET_NAME);
+    aos_str_set(&object, OBJECT_NAME);
+//    aos_str_set(&bucket, "<您的bucket名字>");
+//    aos_str_set(&object, "<您的object名字>");
+    aos_str_set(&file, filename);
+    /* 上传文件 */
+    s = oss_put_object_from_file(options, &bucket, &object, &file,
+                                 headers, &resp_headers);
+    /* 判断是否上传成功 */
+    if (aos_status_is_ok(s)) {
+        qDebug()<<"put object from file succeeded\n";
+//        printf("put object from file succeeded\n");
+    } else {
+        qDebug()<<"put object from file succeeded\n";
+//        printf("put object from file failed\n");
+    }
+    /* 释放资源*/
     aos_pool_destroy(p);
 }
 
@@ -176,11 +277,11 @@ void get_object_to_buffer()
 
     if (aos_status_is_ok(s)) {
         qDebug()<< "get object to buffer succeeded\n";
-        printf("get object to buffer succeeded\n");
+//        printf("get object to buffer succeeded\n");
     }
     else {
         qDebug()<< "get object to buffer failed\n";
-        printf("get object to buffer failed\n");
+//        printf("get object to buffer failed\n");
     }
 
     //get buffer len
